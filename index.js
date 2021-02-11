@@ -13,7 +13,7 @@ const fieldMaps = [
 const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
 
 const maxPage = 5;
-const baseUrl = 'https://www.renthub.in.th/%E0%B8%AD%E0%B8%9E%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%97%E0%B9%80%E0%B8%A1%E0%B9%89%E0%B8%99%E0%B8%97%E0%B9%8C-%E0%B8%AB%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%9E%E0%B8%B1%E0%B8%81-%E0%B8%AB%E0%B8%AD%E0%B8%9E%E0%B8%B1%E0%B8%81/mrt-%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%A7%E0%B8%B1%E0%B8%92%E0%B8%99%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%97%E0%B8%A8%E0%B9%84%E0%B8%97%E0%B8%A2';
+const baseUrl = 'https://renthub.in.th/%E0%B8%AD%E0%B8%9E%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%97%E0%B9%80%E0%B8%A1%E0%B9%89%E0%B8%99%E0%B8%97%E0%B9%8C-%E0%B8%AB%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%9E%E0%B8%B1%E0%B8%81-%E0%B8%AB%E0%B8%AD%E0%B8%9E%E0%B8%B1%E0%B8%81/bts-%E0%B8%AD%E0%B8%B8%E0%B8%94%E0%B8%A1%E0%B8%AA%E0%B8%B8%E0%B8%82';
 let title = "";
 
 (async () => {
@@ -28,12 +28,11 @@ let title = "";
   await page.setViewport({width: 1920, height: 1080});
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
 
-  let allRenz = [];
   let csvContent = "Name,Cost,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n";
-  for (let i = 1; i <= maxPage; i++) {
+  for (let pageIndex = 1; pageIndex <= maxPage; pageIndex++) {
     try {
       // go to the target web
-      await page.goto(`${baseUrl}/${i}`);
+      await page.goto(`${baseUrl}/${pageIndex}`);
       title = await page.title();
       title = title.split('-')[0].trim()
       console.log(title)
@@ -85,7 +84,6 @@ let title = "";
         await pageDetail.close();
         console.log(renz);
         csvContent += `"${renz.name}","${renz.cost}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
-        allRenz.push(renz);
       }
     } catch (e) {
       console.error(e.message);

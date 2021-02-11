@@ -12,9 +12,9 @@ const fieldMaps = [
 
 const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
 
-
 const maxPage = 5;
 const baseUrl = 'https://www.renthub.in.th/%E0%B8%AD%E0%B8%9E%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B8%97%E0%B9%80%E0%B8%A1%E0%B9%89%E0%B8%99%E0%B8%97%E0%B9%8C-%E0%B8%AB%E0%B9%89%E0%B8%AD%E0%B8%87%E0%B8%9E%E0%B8%B1%E0%B8%81-%E0%B8%AB%E0%B8%AD%E0%B8%9E%E0%B8%B1%E0%B8%81/mrt-%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%A7%E0%B8%B1%E0%B8%92%E0%B8%99%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B9%81%E0%B8%AB%E0%B9%88%E0%B8%87%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%97%E0%B8%A8%E0%B9%84%E0%B8%97%E0%B8%A2';
+let title = "";
 
 (async () => {
   // set some options (set headless to false so we can see
@@ -34,6 +34,9 @@ const baseUrl = 'https://www.renthub.in.th/%E0%B8%AD%E0%B8%9E%E0%B8%B2%E0%B8%A3%
     try {
       // go to the target web
       await page.goto(`${baseUrl}/${i}`);
+      title = await page.title();
+      title = title.split('-')[0].trim()
+      console.log(title)
 
       // wait for element defined by XPath appear in page
       await page.waitForXPath("//*[@id=\"zone_content\"]/div/div[1]/ul/li");
@@ -81,7 +84,7 @@ const baseUrl = 'https://www.renthub.in.th/%E0%B8%AD%E0%B8%9E%E0%B8%B2%E0%B8%A3%
         await pageDetail.$x("a.next_page");
         await pageDetail.close();
         console.log(renz);
-        csvContent += `"${renz.name}","${renz.cost}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet},"${renz.link}",${renz.latitude},${renz.longitude}"\n`;
+        csvContent += `"${renz.name}","${renz.cost}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
         allRenz.push(renz);
       }
     } catch (e) {
@@ -89,7 +92,7 @@ const baseUrl = 'https://www.renthub.in.th/%E0%B8%AD%E0%B8%9E%E0%B8%B2%E0%B8%A3%
     }
   }
 
-  fs.writeFile('renz-cc.csv', csvContent, function (err) {
+  fs.writeFile(`${title}-${new Date().getTime()}.csv`, csvContent, function (err) {
     if (err) return console.log(err);
   });
   // close the browser

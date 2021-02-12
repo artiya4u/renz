@@ -11,7 +11,7 @@ const fieldMaps = [
 ]
 
 const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
-let csvContent = "Name,Cost,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n";
+let csvHeader = "Name,Cost-Min,Cost-Max,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n";
 const maxPage = 5;
 const baseUrl = 'https://renthub.in.th/';
 const lines = ['bts', 'bts-silom', 'mrt', 'mrt-purple', 'airport-link'];
@@ -41,7 +41,7 @@ let title = "";
       console.log(station)
       title = station.split('/')[2].trim()
       console.log(title)
-
+      let stationContent = csvHeader;
       for (let pageIndex = 1; pageIndex <= maxPage; pageIndex++) {
         try {
           // go to the target web
@@ -72,7 +72,6 @@ let title = "";
                 renz[FieldNames[indexOf]] = await d.$eval('span.value', el => el.textContent);
               }
             }
-
             try {
               let location = await pageDetail.evaluate(() => {
                 let t = dcp(loc, 5);
@@ -86,17 +85,17 @@ let title = "";
             } catch (e) {
               console.error(e.message);
             }
-
             await pageDetail.$x("a.next_page");
             await pageDetail.close();
             console.log(renz);
-            csvContent += `"${renz.name}","${renz.cost}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+            let costs = renz.cost.split(' - ', 1)
+            stationContent += `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
           }
         } catch (e) {
           console.error(e.message);
         }
       }
-      fs.writeFile(`${title}-${new Date().getTime()}.csv`, csvContent, function (err) {
+      fs.writeFile(`${title}-${new Date().getTime()}.csv`, stationContent, function (err) {
         if (err) return console.log(err);
       });
     }

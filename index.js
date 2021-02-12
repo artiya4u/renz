@@ -94,7 +94,7 @@ let title = "";
           console.error(e.message);
         }
       }
-      fs.writeFile(`${title}-${new Date().getTime()}.csv`, stationContent, function (err) {
+      fs.writeFile(`output/${title}-${new Date().toISOString()}.csv`, stationContent, function (err) {
         if (err) return console.log(err);
       });
     }

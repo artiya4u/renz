@@ -20,9 +20,21 @@ let title = "";
 (async () => {
   // set some options (set headless to false so we can see
   // this automated browsing experience)
-  let launchOptions = {headless: true, args: ['--start-maximized']};
+  const options = {
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process', // <- this one doesn't works in Windows
+      '--disable-gpu'
+    ],
+    headless: true
+  }
 
-  const browser = await puppeteer.launch(launchOptions);
+  const browser = await puppeteer.launch(options);
   const page = await browser.newPage();
 
   // set viewport and user agent (just in case for nice viewing)

@@ -88,7 +88,7 @@ let title = "";
             await pageDetail.$x("a.next_page");
             await pageDetail.close();
             console.log(renz);
-            stationContent += `"${renz.name}","${renz.costs}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+            stationContent += `"${renz.name}","${renz.cost}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
           }
         } catch (e) {
           console.error(e.message);

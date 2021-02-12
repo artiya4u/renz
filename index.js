@@ -39,7 +39,7 @@ let title = "";
 
     for (let station of stations) {
       console.log(station)
-      title = station.split('/')[1].trim()
+      title = station.split('/')[2].trim()
       console.log(title)
 
       for (let pageIndex = 1; pageIndex <= maxPage; pageIndex++) {

@@ -11,7 +11,7 @@ const fieldMaps = [
 ]
 
 const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
-let csvHeader = "Name,Cost-Min,Cost-Max,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n";
+let csvHeader = "Name,Cost,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n";
 const maxPage = 5;
 const baseUrl = 'https://renthub.in.th/';
 const lines = ['bts', 'bts-silom', 'mrt', 'mrt-purple', 'airport-link'];
@@ -88,8 +88,7 @@ let title = "";
             await pageDetail.$x("a.next_page");
             await pageDetail.close();
             console.log(renz);
-            let costs = renz.cost.split(' - ', 1)
-            stationContent += `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+            stationContent += `"${renz.name}","${renz.costs}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
           }
         } catch (e) {
           console.error(e.message);

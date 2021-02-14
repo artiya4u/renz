@@ -55,9 +55,8 @@ const lines = ['bts', 'bts-silom', 'mrt', 'mrt-purple', 'airport-link'];
     });
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
 
-  await page.goto(baseUrl);
-
   for (let line of lines) {
+    await page.goto(baseUrl);
     // wait for element defined by XPath appear in page
     let stations = await page.$$eval(`div.${line} > i > div > a:nth-child(odd)`, elements => {
       return elements.map(e => e.getAttribute('href'));

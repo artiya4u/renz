@@ -14,30 +14,45 @@ const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet
 let csvHeader = 'Name,CostMin,CostMax,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n';
 const maxPage = 5;
 const baseUrl = 'https://renthub.in.th/';
-const lines = ['bts', 'bts-silom', 'mrt', 'mrt-purple', 'airport-link'];
+const lines = ['mrt', 'mrt-purple', 'airport-link'];
 
 (async () => {
   // set some options (set headless to false so we can see
   // this automated browsing experience)
   const options = {
     args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
+      '--disable-canvas-aa', // Disable antialiasing on 2d canvas
+      '--disable-2d-canvas-clip-aa', // Disable antialiasing on 2d canvas clips
+      '--disable-gl-drawing-for-tests', // BEST OPTION EVER! Disables GL drawing operations which produce pixel output. With this the GL output will not be correct but tests will run faster.
+      '--disable-dev-shm-usage', // ???
+      '--no-zygote', // wtf does that mean ?
+      '--use-gl=swiftshader', // better cpu usage with --use-gl=desktop rather than --use-gl=swiftshader, still needs more testing.
+      '--enable-webgl',
+      '--hide-scrollbars',
+      '--mute-audio',
       '--no-first-run',
-      '--no-zygote',
-      '--single-process', // <- this one doesn't works in Windows
-      '--disable-gpu'
+      '--disable-infobars',
+      '--disable-breakpad',
+      //'--ignore-gpu-blacklist',
+      '--window-size=1280,1024', // see defaultViewport
+      '--user-data-dir=./chromeData', // created in index.js, guess cache folder ends up inside too.
+      '--no-sandbox', // meh but better resource comsuption
+      '--disable-setuid-sandbox' // same
     ],
-    headless: true
+    headless: true,
+    // ignoreDefaultArgs: true, // needed ?
+    devtools: false,
   }
 
   const browser = await puppeteer.launch(options);
   const page = await browser.newPage();
 
   // set viewport and user agent (just in case for nice viewing)
-  await page.setViewport({width: 1920, height: 1080});
+  await page.setViewport(
+    {
+      width: 1280,
+      height: 882
+    });
   await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36');
 
   await page.goto(baseUrl);
@@ -99,7 +114,7 @@ const lines = ['bts', 'bts-silom', 'mrt', 'mrt-purple', 'airport-link'];
             await pageDetail.$x('a.next_page');
             await pageDetail.close();
             console.log(renz);
-            let costs = renz.cost.replace(/\,/g, '').split(' - ');
+            let costs = renz.cost.replace(/,/g, '').split(' - ');
             console.log(costs);
             stationContent += `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
           }

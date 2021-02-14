@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const fieldMaps = [
   'รายเดือน : (จ่ายก่อนเข้าพัก)',
+  'รายวัน :',
   'เงินมัดจำ :',
   'จ่ายล่วงหน้า :',
   'ค่าไฟฟ้า :',
@@ -10,8 +11,8 @@ const fieldMaps = [
   'อินเตอร์เน็ต :',
 ]
 
-const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
-let csvHeader = 'Name,CostMin,CostMax,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n';
+const FieldNames = ['cost', 'costDaily', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
+let csvHeader = 'Name,CostMin,CostMax,CostDaily,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n';
 const maxPage = 10;
 const baseUrl = 'https://renthub.in.th';
 const lines = ['bts'];
@@ -32,7 +33,13 @@ async function crawlFromPage(url, page, browser) {
       for (let u of ul) {
         let name = await u.$eval('span.name', el => el.textContent);
         let link = await u.$eval('a', el => el.getAttribute('href'));
-        let renz = {name: name, link: 'https://renthub.in.th' + link, phones: [], latitude: null, longitude: null}
+        let renz = {
+          name: name,
+          link: 'https://renthub.in.th' + decodeURIComponent(link),
+          phones: [],
+          latitude: null,
+          longitude: null
+        }
         const pageDetail = await browser.newPage();
         await pageDetail.goto(renz.link);
         renz.link = pageDetail.url();
@@ -77,7 +84,7 @@ async function crawlFromPage(url, page, browser) {
           console.log(renz);
           let costs = renz.cost.replace(/,/g, '').split(' - ');
           console.log(costs);
-          let stationContent = `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+          let stationContent = `"${renz.name}","${costs[0]}","${costs[1]}", "${renz.costDaily}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
           fs.appendFile(fileName, stationContent, function (err) {
             if (err) return console.log(err);
           });

@@ -11,11 +11,10 @@ const fieldMaps = [
 ]
 
 const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
-let csvHeader = "Name,Cost,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n";
+let csvHeader = 'Name,CostMin,CostMax,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n';
 const maxPage = 5;
 const baseUrl = 'https://renthub.in.th/';
 const lines = ['bts', 'bts-silom', 'mrt', 'mrt-purple', 'airport-link'];
-let title = "";
 
 (async () => {
   // set some options (set headless to false so we can see
@@ -51,7 +50,7 @@ let title = "";
 
     for (let station of stations) {
       console.log(station)
-      title = station.split('/')[2].trim()
+      let title = station.split('/')[2].trim()
       console.log(title)
       let stationContent = csvHeader;
       for (let pageIndex = 1; pageIndex <= maxPage; pageIndex++) {
@@ -60,7 +59,7 @@ let title = "";
           await page.goto(`${baseUrl}/${station}/${pageIndex}`);
 
           // evaluate XPath expression of the target selector (it return array of ElementHandle)
-          let ul = await page.$x("//*[@id=\"zone_content\"]/div/div[1]/ul/li");
+          let ul = await page.$x('//*[@id=\'zone_content\']/div/div[1]/ul/li');
           for (let u of ul) {
             let name = await u.$eval('span.name', el => el.textContent);
             let link = await u.$eval('a', el => el.getAttribute('href'));
@@ -72,8 +71,8 @@ let title = "";
               await pageDetail.close();
               continue
             }
-            await pageDetail.waitForXPath("//*[@id=\"description_table\"]/li");
-            let df = await pageDetail.$x("//*[@id=\"description_table\"]/li");
+            await pageDetail.waitForXPath('//*[@id=\'description_table\']/li');
+            let df = await pageDetail.$x('//*[@id=\'description_table\']/li');
             for (let d of df) {
               renz.phones = await pageDetail.$$eval('span.phone', elements => {
                 return elements.map(e => e.textContent);
@@ -97,10 +96,12 @@ let title = "";
             } catch (e) {
               console.error(e.message);
             }
-            await pageDetail.$x("a.next_page");
+            await pageDetail.$x('a.next_page');
             await pageDetail.close();
             console.log(renz);
-            stationContent += `"${renz.name}","${renz.cost}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+            let costs = renz.cost.replace(/\,/g, '').split(' - ');
+            console.log(costs);
+            stationContent += `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
           }
         } catch (e) {
           console.error(e.message);

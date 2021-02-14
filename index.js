@@ -12,7 +12,7 @@ const fieldMaps = [
 
 const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet'];
 let csvHeader = 'Name,CostMin,CostMax,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n';
-const maxPage = 5;
+const maxPage = 10;
 const baseUrl = 'https://renthub.in.th';
 const lines = ['bts'];
 
@@ -43,19 +43,23 @@ async function crawlFromPage(url, page, browser) {
         await pageDetail.waitForXPath('//*[@id=\'description_table\']/li');
         let df = await pageDetail.$x('//*[@id=\'description_table\']/li');
         for (let d of df) {
-          renz.phones = await pageDetail.$$eval('span.phone', elements => {
-            return elements.map(e => e.textContent);
-          });
-          let field = await d.$eval('span.field', el => el.textContent);
-          let indexOf = fieldMaps.indexOf(field);
-          if (indexOf >= 0) {
-            let val = await d.$eval('span.value', el => el.textContent);
-            if (val === undefined) {
-              val = '';
-            } else {
-              val.replace(/"/g, '\'\'')
+          try {
+            renz.phones = await pageDetail.$$eval('span.phone', elements => {
+              return elements.map(e => e.textContent);
+            });
+            let field = await d.$eval('span.field', el => el.textContent);
+            let indexOf = fieldMaps.indexOf(field);
+            if (indexOf >= 0) {
+              let val = await d.$eval('span.value', el => el.textContent);
+              if (val === undefined) {
+                val = '';
+              } else {
+                val.replace(/"/g, '\'\'')
+              }
+              renz[FieldNames[indexOf]] = val
             }
-            renz[FieldNames[indexOf]] = val
+          } catch (e) {
+            console.error(e.message);
           }
         }
         try {
@@ -68,18 +72,18 @@ async function crawlFromPage(url, page, browser) {
           });
           renz.latitude = location.lat;
           renz.longitude = location.lon;
+          await pageDetail.$x('a.next_page');
+          await pageDetail.close();
+          console.log(renz);
+          let costs = renz.cost.replace(/,/g, '').split(' - ');
+          console.log(costs);
+          let stationContent = `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+          fs.appendFile(fileName, stationContent, function (err) {
+            if (err) return console.log(err);
+          });
         } catch (e) {
           console.error(e.message);
         }
-        await pageDetail.$x('a.next_page');
-        await pageDetail.close();
-        console.log(renz);
-        let costs = renz.cost.replace(/,/g, '').split(' - ');
-        console.log(costs);
-        let stationContent = `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
-        fs.appendFile(fileName, stationContent, function (err) {
-          if (err) return console.log(err);
-        });
       }
     } catch (e) {
       console.error(e.message);

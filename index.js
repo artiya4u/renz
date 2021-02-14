@@ -14,7 +14,7 @@ const FieldNames = ['cost', 'deposit', 'prepaid', 'electric', 'water', 'internet
 let csvHeader = 'Name,CostMin,CostMax,Deposit,Prepaid,Electric,Water,Internet,Link,Latitude,Longitude\n';
 const maxPage = 5;
 const baseUrl = 'https://renthub.in.th/';
-const lines = ['mrt', 'mrt-purple', 'airport-link'];
+const lines = ['bts', 'bts-silom', 'mrt', 'mrt-purple', 'airport-link'];
 
 (async () => {
   // set some options (set headless to false so we can see

@@ -49,7 +49,13 @@ async function crawlFromPage(url, page, browser) {
           let field = await d.$eval('span.field', el => el.textContent);
           let indexOf = fieldMaps.indexOf(field);
           if (indexOf >= 0) {
-            renz[FieldNames[indexOf]] = await d.$eval('span.value', el => el.textContent);
+            let val = await d.$eval('span.value', el => el.textContent);
+            if (val === undefined) {
+              val = '';
+            } else {
+              val.replace(/"/g, '\'\'')
+            }
+            renz[FieldNames[indexOf]] = val
           }
         }
         try {
@@ -70,7 +76,7 @@ async function crawlFromPage(url, page, browser) {
         console.log(renz);
         let costs = renz.cost.replace(/,/g, '').split(' - ');
         console.log(costs);
-        let stationContent = `"${renz.name.replace(/"/g, '\'\'')}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+        let stationContent = `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
         fs.appendFile(fileName, stationContent, function (err) {
           if (err) return console.log(err);
         });

@@ -18,7 +18,10 @@ const lines = ['bts'];
 
 async function crawlFromPage(url, page, browser) {
   let title = decodeURIComponent(url.split('/')[4].trim())
-  let stationContent = csvHeader;
+  let fileName = `output/${title}-${new Date().toISOString()}.csv`
+  fs.appendFile(fileName, csvHeader, function (err) {
+    if (err) return console.log(err);
+  });
   for (let pageIndex = 1; pageIndex <= maxPage; pageIndex++) {
     try {
       // go to the target web
@@ -67,15 +70,15 @@ async function crawlFromPage(url, page, browser) {
         console.log(renz);
         let costs = renz.cost.replace(/,/g, '').split(' - ');
         console.log(costs);
-        stationContent += `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+        let stationContent = `"${renz.name}","${costs[0]}","${costs[1]}","${renz.deposit}","${renz.prepaid}","${renz.electric}","${renz.water}","${renz.internet}","${renz.link}",${renz.latitude},${renz.longitude}\n`;
+        fs.appendFile(fileName, stationContent, function (err) {
+          if (err) return console.log(err);
+        });
       }
     } catch (e) {
       console.error(e.message);
     }
   }
-  fs.writeFile(`output/${title}-${new Date().toISOString()}.csv`, stationContent, function (err) {
-    if (err) return console.log(err);
-  });
 }
 
 (async () => {

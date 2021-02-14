@@ -17,7 +17,7 @@ const baseUrl = 'https://renthub.in.th';
 const lines = ['bts'];
 
 async function crawlFromPage(url, page, browser) {
-  let title = url.split('/')[4].trim()
+  let title = decodeURIComponent(url.split('/')[4].trim())
   let stationContent = csvHeader;
   for (let pageIndex = 1; pageIndex <= maxPage; pageIndex++) {
     try {
